@@ -1,0 +1,15 @@
+{
+  "name": "cv",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-page CV for Ofek Wittenberg, built from a single Markdown source.",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "node build.mjs && node -e \"console.log('Open dist/index.html in your browser.')\""
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "markdown-it": "^14.1.0"
+  }
+}
