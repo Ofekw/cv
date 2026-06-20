@@ -1,0 +1,128 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import matter from 'gray-matter';
+import MarkdownIt from 'markdown-it';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const srcDir = path.join(root, 'src');
+const outDir = path.join(root, 'dist');
+
+const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
+
+// Small inline icons (fill follows currentColor).
+const icons = {
+  location:
+    '<svg class="ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>',
+  email:
+    '<svg class="ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1.4 2L12 12.2 19.6 7H4.4ZM20 8.6l-7.4 5.05a1 1 0 0 1-1.2 0L4 8.6V17h16V8.6Z"/></svg>',
+  LinkedIn:
+    '<svg class="ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9V9Z"/></svg>',
+  GitHub:
+    '<svg class="ico" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12 10 10 0 0 0 12 2Z"/></svg>',
+};
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function handleFromUrl(label, url) {
+  try {
+    const u = new URL(url);
+    const p = u.pathname.replace(/^\/+|\/+$/g, '');
+    if (label === 'GitHub') return p.split('/').pop() || u.hostname;
+    return p || u.hostname;
+  } catch (_) {
+    return url;
+  }
+}
+
+function collectLinks(data) {
+  const links = [];
+  if (data.linkedin)
+    links.push({ label: 'LinkedIn', url: data.linkedin, handle: handleFromUrl('LinkedIn', data.linkedin) });
+  if (data.github)
+    links.push({ label: 'GitHub', url: data.github, handle: handleFromUrl('GitHub', data.github) });
+  if (Array.isArray(data.links)) {
+    for (const l of data.links)
+      links.push({ label: l.label, url: l.url, handle: l.handle || handleFromUrl(l.label, l.url) });
+  }
+  return links;
+}
+
+function buildContact(data) {
+  const items = [];
+  if (data.location) {
+    items.push(`<li>${icons.location}<span>${escapeHtml(data.location)}</span></li>`);
+  }
+  if (data.email) {
+    const [user, domain] = String(data.email).split('@');
+    const b64 = Buffer.from(String(data.email)).toString('base64');
+    const fallback = `${escapeHtml(user)} [at] ${escapeHtml(domain)}`;
+    items.push(
+      `<li>${icons.email}<span class="cv-email" data-e="${b64}">${fallback}</span></li>`
+    );
+  }
+  for (const link of collectLinks(data)) {
+    const icon = icons[link.label] || '';
+    const text = escapeHtml(link.handle || link.label);
+    items.push(
+      `<li>${icon}<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${text}</a></li>`
+    );
+  }
+  return items.join('\n      ');
+}
+
+const emailScript = `<script>
+  (function () {
+    var el = document.querySelector('.cv-email');
+    if (!el) return;
+    try {
+      var e = atob(el.getAttribute('data-e'));
+      var a = document.createElement('a');
+      a.href = 'mailto:' + e;
+      a.textContent = e;
+      el.replaceChildren(a);
+    } catch (_) {}
+  })();
+</script>`;
+
+function build() {
+  const raw = fs.readFileSync(path.join(root, 'cv.md'), 'utf8');
+  const { data, content } = matter(raw);
+
+  let bodyHtml = md.render(content);
+  // Standalone emphasised lines (e.g. "*2017 - Present*") become muted meta lines.
+  bodyHtml = bodyHtml.replace(/<p><em>([\s\S]*?)<\/em><\/p>/g, '<p class="meta">$1</p>');
+
+  const styles = fs.readFileSync(path.join(srcDir, 'styles.css'), 'utf8');
+  const template = fs.readFileSync(path.join(srcDir, 'template.html'), 'utf8');
+
+  const html = template
+    .replaceAll('{{TITLE_TAG}}', `${escapeHtml(data.name)} \u00b7 ${escapeHtml(data.title)}`)
+    .replaceAll('{{DESCRIPTION}}', escapeHtml(data.tagline || ''))
+    .replaceAll('{{NAME}}', escapeHtml(data.name))
+    .replaceAll('{{TITLE}}', escapeHtml(data.title))
+    .replaceAll('{{TAGLINE}}', escapeHtml(data.tagline || ''))
+    .replaceAll('{{CONTACT}}', buildContact(data))
+    .replaceAll('{{STYLES}}', styles)
+    .replaceAll('{{CONTENT}}', bodyHtml)
+    .replaceAll('{{SCRIPTS}}', emailScript);
+
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
+
+  // Copy CNAME if present (for custom-domain GitHub Pages).
+  const cname = path.join(root, 'CNAME');
+  if (fs.existsSync(cname)) {
+    fs.copyFileSync(cname, path.join(outDir, 'CNAME'));
+  }
+
+  console.log('Built dist/index.html');
+}
+
+build();
