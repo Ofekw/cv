@@ -2,7 +2,7 @@
 
 name: Ofek Wittenberg
 title: Principal Software Engineer
-tagline: I build the foundational systems that keep hyperscale platforms fast, reliable, and always on.
+tagline: Principal Software Engineer @ Xbox · Leading, designing and building the next generation of gaming.
 location: Seattle, WA
 email: job@ofek.io
 linkedin: https://www.linkedin.com/in/ofekw
@@ -12,7 +12,7 @@ github: https://github.com/Ofekw
 
 ## Summary
 
-Principal Software Engineer with over a decade building large-scale distributed systems and cloud platforms. I architect foundational, high-throughput services, the kind measured in hundreds of thousands of requests per second and single-digit-millisecond latencies, and lead teams of engineers to deliver them across many partner teams with zero downtime. I set technical direction, go deep on performance, and turn hard infrastructure problems into reliable products.
+Principal Software Engineer at Xbox, building the foundational backend services that power gaming across PC, console, and Cloud Gaming. I led the ground-up rewrite and cloud migration of a core service that all of Xbox depends on, and designed an in-memory cache that holds strong consistency at 100K to over 1M requests per second with single-digit-millisecond latency, delivered with zero downtime. I specialize in distributed-systems architecture and performance, and lead teams of engineers to ship it.
 
 ## Experience
 
@@ -38,17 +38,17 @@ Principal Software Engineer with over a decade building large-scale distributed 
 - A core engineer migrating Office 365 from legacy source control to Git and Azure DevOps, modernizing engineering systems and dev flows for 3,000+ engineers; presented the new processes to audiences of 1,000+.
 - Modernized the functional-test infrastructure orchestrating 10,000+ VMs for all Office pull-request gating, one of the most complex workflow engines in the company.
 
-### Orion Health · Software Engineer
-
-*Auckland, New Zealand · 2014 - 2016*
-
-- Built enterprise Java web applications powering all hospitals in Australia and New Zealand.
-
 ### Centrality.AI · Software Engineer (Contract)
 
 *Auckland, New Zealand · 2017*
 
 - Full-stack delivery on a blockchain platform: built a data-migration system and integrated a secure payments and billing pipeline handling sensitive customer data.
+
+### Orion Health · Software Engineer
+
+*Auckland, New Zealand · 2014 - 2016*
+
+- Built enterprise Java web applications powering all hospitals in Australia and New Zealand.
 
 ## Ventures & Selected Projects
 
