@@ -12,7 +12,7 @@ github: https://github.com/Ofekw
 
 ## Summary
 
-Principal Software Engineer at Xbox, building the foundational backend services that power gaming across PC, console, and Cloud Gaming. I led the ground-up rewrite and cloud migration of a core service that all of Xbox depends on, and designed an in-memory cache that holds strong consistency at 100K to over 1M requests per second with single-digit-millisecond latency, delivered with zero downtime. I specialize in distributed-systems architecture and performance, and lead teams of engineers to ship it.
+Principal Software Engineer with over a decade building distributed systems and cloud platforms across gaming, productivity, healthcare, and fintech. My specialty is high-throughput, low-latency backend: services that run at hundreds of thousands to millions of requests per second at single-digit-millisecond latency, the caching and consistency models that keep them correct under load, and the cloud migrations that get them there with zero downtime. I lead and mentor engineers and deliver complex platforms across many partner teams.
 
 ## Experience
 
