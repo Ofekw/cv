@@ -27,7 +27,7 @@ Principal Software Engineer with over a decade building large-scale distributed 
 - Designed a novel in-memory caching layer sustaining \~100K RPS with headroom beyond 1M RPS; auth-sensitive APIs respond in under 5 ms and client calls average under 50 ms.
 - Delivered the migration with zero downtime and no required client changes, coordinating execution across many partner teams.
 
-#### Xbox Cloud Gaming (xCloud) · Software Engineer II to Senior · 2020 - 2023
+#### Xbox Cloud Gaming (xCloud) · Intermediate Software Engineer to Senior · 2020 - 2023
 
 - Joined as one of xCloud's earliest engineers and set its architectural foundation, pioneering the microservices platform, Kubernetes adoption, and a cloud-first design.
 - Owned the authentication service (one of xCloud's highest-throughput services) and designed its global game-server routing from scratch: Anycast HTTPS termination, a DNS/ASN map of the internet, and performance-based routing so players reach the closest, best-quality servers.
