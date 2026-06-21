@@ -10,6 +10,16 @@ const outDir = path.join(root, 'dist');
 
 const md = new MarkdownIt({ html: true, linkify: false, typographer: false });
 
+// Render ```mermaid fences as <pre class="mermaid"> so they render client-side.
+const defaultFence = md.renderer.rules.fence.bind(md.renderer.rules);
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const info = (tokens[idx].info || '').trim();
+  if (info === 'mermaid') {
+    return `<pre class="mermaid">${escapeHtml(tokens[idx].content)}</pre>\n`;
+  }
+  return defaultFence(tokens, idx, options, env, self);
+};
+
 // Small inline icons (fill follows currentColor).
 const icons = {
   location:
@@ -91,7 +101,41 @@ const emailScript = `<script>
   })();
 </script>`;
 
-function build() {
+function nav(base, active) {
+  const cur = (k) => (active === k ? ' aria-current="page"' : '');
+  return `<nav class="site-nav" aria-label="Primary">
+      <div class="site-nav-inner">
+        <a class="site-nav-brand" href="${base}index.html">Ofek Wittenberg</a>
+        <div class="site-nav-links">
+          <a href="${base}index.html"${cur('cv')}>CV</a>
+          <a href="${base}thoughts/index.html"${cur('thoughts')}>Thoughts</a>
+        </div>
+      </div>
+    </nav>`;
+}
+
+function formatDate(d) {
+  const date = d instanceof Date ? d : new Date(d);
+  if (Number.isNaN(date.getTime())) return { iso: '', human: String(d ?? '') };
+  return {
+    iso: date.toISOString().slice(0, 10),
+    human: String(date.getUTCFullYear()),
+  };
+}
+
+function renderTags(tags) {
+  if (!Array.isArray(tags) || tags.length === 0) return '';
+  const chips = tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+  return `<span class="post-tags">${chips}</span>`;
+}
+
+const mermaidScript = `<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  await mermaid.run({ querySelector: 'pre.mermaid' });
+</script>`;
+
+function buildCV(styles) {
   const raw = fs.readFileSync(path.join(root, 'cv.md'), 'utf8');
   const { data, content } = matter(raw);
 
@@ -99,7 +143,6 @@ function build() {
   // Standalone emphasised lines (e.g. "*2017 - Present*") become muted meta lines.
   bodyHtml = bodyHtml.replace(/<p><em>([\s\S]*?)<\/em><\/p>/g, '<p class="meta">$1</p>');
 
-  const styles = fs.readFileSync(path.join(srcDir, 'styles.css'), 'utf8');
   const template = fs.readFileSync(path.join(srcDir, 'template.html'), 'utf8');
 
   const html = template
@@ -109,20 +152,114 @@ function build() {
     .replaceAll('{{TITLE}}', escapeHtml(data.title))
     .replaceAll('{{TAGLINE}}', escapeHtml(data.tagline || ''))
     .replaceAll('{{CONTACT}}', buildContact(data))
+    .replaceAll('{{NAV}}', nav('', 'cv'))
     .replaceAll('{{STYLES}}', styles)
     .replaceAll('{{CONTENT}}', bodyHtml)
     .replaceAll('{{SCRIPTS}}', emailScript);
 
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, 'index.html'), html, 'utf8');
-
-  // Copy CNAME if present (for custom-domain GitHub Pages).
-  const cname = path.join(root, 'CNAME');
-  if (fs.existsSync(cname)) {
-    fs.copyFileSync(cname, path.join(outDir, 'CNAME'));
-  }
-
   console.log('Built dist/index.html');
 }
 
-build();
+function buildThoughts(styles, siteUrl) {
+  const postsDir = path.join(root, 'posts');
+  if (!fs.existsSync(postsDir)) return;
+
+  const postTemplate = fs.readFileSync(path.join(srcDir, 'post.html'), 'utf8');
+  const thoughtsTemplate = fs.readFileSync(path.join(srcDir, 'thoughts.html'), 'utf8');
+
+  const posts = [];
+  for (const file of fs.readdirSync(postsDir)) {
+    if (!file.endsWith('.md')) continue;
+    const raw = fs.readFileSync(path.join(postsDir, file), 'utf8');
+    const { data, content } = matter(raw);
+    if (data.draft) continue;
+    const slug = path.basename(file, '.md');
+    const { iso, human } = formatDate(data.date);
+    const sortKey = data.date ? new Date(data.date).getTime() : 0;
+    posts.push({ slug, data, content, iso, human, sortKey });
+  }
+  posts.sort((a, b) => b.sortKey - a.sortKey);
+
+  const base = '../../';
+  for (const post of posts) {
+    const bodyHtml = md.render(post.content);
+    const hasMermaid = bodyHtml.includes('class="mermaid"');
+    const canonical = siteUrl
+      ? `${siteUrl}/thoughts/${post.slug}/`
+      : `thoughts/${post.slug}/`;
+
+    const html = postTemplate
+      .replaceAll('{{TITLE_TAG}}', `${escapeHtml(post.data.title)} \u00b7 Ofek Wittenberg`)
+      .replaceAll('{{DESCRIPTION}}', escapeHtml(post.data.summary || ''))
+      .replaceAll('{{CANONICAL}}', escapeHtml(canonical))
+      .replaceAll('{{OG_TITLE}}', escapeHtml(post.data.title))
+      .replaceAll('{{THOUGHTS_HREF}}', `${base}thoughts/index.html`)
+      .replaceAll('{{NAV}}', nav(base, 'thoughts'))
+      .replaceAll('{{STYLES}}', styles)
+      .replaceAll('{{TITLE}}', escapeHtml(post.data.title))
+      .replaceAll('{{DATE_ISO}}', post.iso)
+      .replaceAll('{{DATE_HUMAN}}', escapeHtml(post.human))
+      .replaceAll('{{TAGS}}', renderTags(post.data.tags))
+      .replaceAll('{{CONTENT}}', bodyHtml)
+      .replaceAll('{{SCRIPTS}}', hasMermaid ? mermaidScript : '');
+
+    const dir = path.join(outDir, 'thoughts', post.slug);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
+  }
+
+  const items = posts
+    .map((post) => {
+      const tags =
+        Array.isArray(post.data.tags) && post.data.tags.length
+          ? `\n          <div class="post-list-tags">${post.data.tags
+              .map((t) => `<span class="tag">${escapeHtml(t)}</span>`)
+              .join('')}</div>`
+          : '';
+      return `        <li class="post-list-item">
+          <p class="post-list-date"><time datetime="${post.iso}">${escapeHtml(post.human)}</time></p>
+          <h2 class="post-list-title"><a href="${post.slug}/index.html">${escapeHtml(post.data.title)}</a></h2>
+          <p class="post-list-summary">${escapeHtml(post.data.summary || '')}</p>${tags}
+        </li>`;
+    })
+    .join('\n');
+
+  const listHtml = thoughtsTemplate
+    .replaceAll('{{TITLE_TAG}}', 'Thoughts \u00b7 Ofek Wittenberg')
+    .replaceAll('{{DESCRIPTION}}', 'Writing on distributed systems, scale, and building backend platforms.')
+    .replaceAll('{{NAV}}', nav('../', 'thoughts'))
+    .replaceAll('{{STYLES}}', styles)
+    .replaceAll('{{INTRO}}', 'Notes on distributed systems, scale, and the occasional war story.')
+    .replaceAll(
+      '{{LIST}}',
+      items || '        <li class="post-list-item"><p class="post-list-summary">Nothing here yet.</p></li>'
+    );
+
+  const dir = path.join(outDir, 'thoughts');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'index.html'), listHtml, 'utf8');
+  console.log(`Built dist/thoughts/ (${posts.length} post${posts.length === 1 ? '' : 's'})`);
+}
+
+function main() {
+  const styles = fs.readFileSync(path.join(srcDir, 'styles.css'), 'utf8');
+
+  let siteUrl = '';
+  const cnamePath = path.join(root, 'CNAME');
+  if (fs.existsSync(cnamePath)) {
+    const host = fs.readFileSync(cnamePath, 'utf8').trim();
+    if (host) siteUrl = `https://${host}`;
+  }
+
+  buildCV(styles);
+  buildThoughts(styles, siteUrl);
+
+  // Copy CNAME if present (for custom-domain GitHub Pages).
+  if (fs.existsSync(cnamePath)) {
+    fs.copyFileSync(cnamePath, path.join(outDir, 'CNAME'));
+  }
+}
+
+main();
