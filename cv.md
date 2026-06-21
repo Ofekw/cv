@@ -23,7 +23,7 @@ Over a decade building distributed systems and cloud platforms across gaming, pr
 - Tech lead for the next-generation Xbox console platform. Architected the ground-up rewrite and cloud migration of the System & Content Update Service, a tier-0 system serving every Xbox client, onto roughly 400 Kubernetes pods across 5 clusters in 3 regions on Cosmos DB.
 - Designed a novel in-memory cache that holds strong consistency past a million requests per second, a guarantee rarely attempted at this scale. The auth hot path answers sub-millisecond (0.145 ms at p50); client calls fell from 250 ms to 20 ms, at a 95% cache hit rate.
 - Delivered the cutover with zero downtime and no client changes across tens of millions of consoles and PCs, shadowing live traffic and comparing responses to de-risk every step.
-- Diagnosed and fixed a memory leak in the Azure Cosmos DB .NET SDK, making a core query path about 100x faster for every Cosmos customer.
+- Diagnosed and fixed a memory leak in the Azure Cosmos DB .NET SDK, making a core query path about 25x faster for every Cosmos customer.
 
 #### Xbox Cloud Gaming (xCloud) · Intermediate Software Engineer to Senior · 2020 – 2023
 
