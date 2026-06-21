@@ -195,7 +195,7 @@ We had a slow, creeping memory leak: process RSS climbing for hours while the ma
 
 The culprit: deep in query evaluation, the SDK called `Expression.Compile()`, which JIT-emits a brand-new `DynamicMethod` every single time. For a high-throughput service that builds distinct expression trees per request, that's unbounded JIT and IL growth; native code memory that never comes back, until long-lived pods walk into their memory limit and die.
 
-Fixing that bug in the SDK, did more than plug the leak. Native memory growth vanished and the pod restarts stopped; the same query path also got dramatically cheaper, from roughly 101 µs to 4 µs per call, about 100x faster for all CosmosDB customers.
+Fixing that bug in the SDK, did more than plug the leak. Native memory growth vanished and the pod restarts stopped; the same query path also got dramatically cheaper, from roughly 101 µs to 4 µs per call, about 25x faster for all CosmosDB customers.
 
 I worked the fix directly with the Cosmos DB team. It's public: [Azure/azure-cosmos-dotnet-v3 #5487](https://github.com/Azure/azure-cosmos-dotnet-v3/issues/5487).
 
@@ -211,7 +211,7 @@ flowchart LR
     direction TB
     A1["LINQ expression per request"] --> A2["Interpret: no IL emitted"]
     A2 --> A3["Flat native memory"]
-    A3 --> A4["~4 µs / call · ~100x faster"]
+    A3 --> A4["~4 µs / call · ~25x faster"]
   end
   BEFORE2 ==>|"bug fix"| AFTER2
 ```
