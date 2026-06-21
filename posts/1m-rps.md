@@ -3,6 +3,8 @@ title: "How I Rebuilt an Xbox Service That Scales to 1,000,000 Requests per Seco
 date: 2026-06-20
 draft: false
 summary: "Re-architecting a tier-0 Xbox update service from on-prem to cloud-native: a strongly-consistent in-memory cache, Cosmos DB modeled for reads, and a zero-downtime cutover that absorbs over a million requests per second."
+cover: cover.png
+coverAlt: "Line chart on a light background: requests per second hold a flat roughly 80,000 baseline, then spike sharply to a marked launch-night peak of 1,000,000."
 tags:
   - distributed-systems
   - azure-cosmos-db

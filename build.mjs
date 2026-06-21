@@ -129,6 +129,47 @@ function renderTags(tags) {
   return `<span class="post-tags">${chips}</span>`;
 }
 
+// Read intrinsic PNG dimensions from the IHDR chunk (no dependencies).
+function pngSize(file) {
+  try {
+    const buf = fs.readFileSync(file);
+    if (buf.length > 24 && buf.toString('ascii', 12, 16) === 'IHDR') {
+      return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+    }
+  } catch (_) {}
+  return null;
+}
+
+function renderCover(data, slug, postsDir) {
+  if (!data.cover) return '';
+  const alt = escapeHtml(data.coverAlt || data.title || '');
+  const dim = pngSize(path.join(postsDir, slug, data.cover));
+  const size = dim ? ` width="${dim.w}" height="${dim.h}"` : '';
+  return `<figure class="post-cover">
+          <img src="${escapeHtml(data.cover)}" alt="${alt}"${size} loading="eager" decoding="async" />
+        </figure>`;
+}
+
+// Copy a post's sibling asset folder (posts/<slug>/) into its output dir.
+function copyPostAssets(postsDir, slug, destDir) {
+  const assetDir = path.join(postsDir, slug);
+  if (!fs.existsSync(assetDir) || !fs.statSync(assetDir).isDirectory()) return;
+  for (const f of fs.readdirSync(assetDir)) {
+    const src = path.join(assetDir, f);
+    if (fs.statSync(src).isFile()) fs.copyFileSync(src, path.join(destDir, f));
+  }
+}
+
+function renderSocial(data, slug, siteUrl) {
+  if (data.cover && siteUrl) {
+    const url = escapeHtml(`${siteUrl}/thoughts/${slug}/${data.cover}`);
+    return `<meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content="${url}" />
+    <meta name="twitter:image" content="${url}" />`;
+  }
+  return '<meta name="twitter:card" content="summary" />';
+}
+
 const mermaidScript = `<script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
   mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
@@ -195,6 +236,7 @@ function buildThoughts(styles, siteUrl) {
       .replaceAll('{{DESCRIPTION}}', escapeHtml(post.data.summary || ''))
       .replaceAll('{{CANONICAL}}', escapeHtml(canonical))
       .replaceAll('{{OG_TITLE}}', escapeHtml(post.data.title))
+      .replaceAll('{{SOCIAL}}', renderSocial(post.data, post.slug, siteUrl))
       .replaceAll('{{THOUGHTS_HREF}}', `${base}thoughts/index.html`)
       .replaceAll('{{NAV}}', nav(base, 'thoughts'))
       .replaceAll('{{STYLES}}', styles)
@@ -202,11 +244,13 @@ function buildThoughts(styles, siteUrl) {
       .replaceAll('{{DATE_ISO}}', post.iso)
       .replaceAll('{{DATE_HUMAN}}', escapeHtml(post.human))
       .replaceAll('{{TAGS}}', renderTags(post.data.tags))
+      .replaceAll('{{COVER}}', renderCover(post.data, post.slug, postsDir))
       .replaceAll('{{CONTENT}}', bodyHtml)
       .replaceAll('{{SCRIPTS}}', hasMermaid ? mermaidScript : '');
 
     const dir = path.join(outDir, 'thoughts', post.slug);
     fs.mkdirSync(dir, { recursive: true });
+    copyPostAssets(postsDir, post.slug, dir);
     fs.writeFileSync(path.join(dir, 'index.html'), html, 'utf8');
   }
 
