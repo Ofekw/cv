@@ -11,19 +11,14 @@
   </head>
   <body>
     {{NAV}}
-    <main class="cv">
-      <header class="cv-header">
-        <h1 class="cv-name">{{NAME}}</h1>
-        <p class="cv-title">{{TITLE}}</p>
-        <p class="cv-tagline">{{TAGLINE}}</p>
-        <ul class="cv-contact">
-      {{CONTACT}}
-        </ul>
+    <main class="thoughts">
+      <header class="thoughts-header">
+        <h1 class="thoughts-title">Thoughts</h1>
+        <p class="thoughts-intro">{{INTRO}}</p>
       </header>
-      <div class="cv-body">
-{{CONTENT}}
-      </div>
+      <ul class="post-list">
+{{LIST}}
+      </ul>
     </main>
-    {{SCRIPTS}}
   </body>
 </html>

@@ -8,8 +8,10 @@ into a self-contained single-page website and exports cleanly to PDF.
 - **`cv.md`** is the single source of truth: YAML front-matter (name, title, tagline,
   contact, links) plus a Markdown body for the sections.
 - **`build.mjs`** renders it into **`dist/index.html`** — one self-contained file with
-  the CSS inlined, so it works anywhere and prints identically.
-- The design lives in **`src/styles.css`** and the page shell in **`src/template.html`**.
+  the CSS inlined, so it works anywhere and prints identically. It also renders the
+  **Thoughts** blog from [`posts/`](./posts) (see below).
+- The design lives in **`src/styles.css`** and the page shells in **`src/template.html`**
+  (CV), **`src/post.html`** (a post) and **`src/thoughts.html`** (the post list).
 
 ## Edit & build
 
@@ -20,6 +22,33 @@ npm run build    # writes dist/index.html
 
 Then open `dist/index.html` in a browser. To iterate, edit `cv.md` (or the styles) and
 re-run `npm run build`.
+
+## Thoughts (blog)
+
+Posts live in [`posts/`](./posts) as Markdown with YAML front-matter:
+
+```markdown
+---
+title: "Your post title"
+date: 2026-06-20
+draft: false
+summary: "One or two sentences shown in the list and as the page description."
+tags:
+  - distributed-systems
+  - caching
+---
+
+Body in Markdown. Skip the leading H1 — the title comes from front-matter.
+```
+
+- The build emits a list page at **`dist/thoughts/index.html`** and one page per post at
+  **`dist/thoughts/<filename>/index.html`** (the filename is the slug, so `posts/1m-rps.md`
+  publishes to `/thoughts/1m-rps/`). Posts are listed newest-first by `date`.
+- Set **`draft: true`** to keep a post out of the build entirely; flip it to `false` to publish.
+- Fenced ` ```mermaid ` code blocks render as diagrams client-side via the Mermaid CDN. No
+  build step is needed for them; just write the diagram in the post.
+- The site nav (CV / Thoughts) is added automatically and is hidden when printing, so the CV
+  still exports as a clean single page.
 
 ## Export to PDF
 
