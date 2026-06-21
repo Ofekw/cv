@@ -408,6 +408,19 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* ===== Post cover (hero) ===== */
+.post-cover {
+  margin: -3rem -3.25rem 1.8rem;
+}
+
+.post-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px 10px 0 0;
+  border-bottom: 1px solid var(--rule);
+}
+
 /* ===== Post body ===== */
 .post-body {
   color: #2a3038;
@@ -667,6 +680,13 @@ body {
     border-radius: 0;
     box-shadow: none;
     padding: 1.75rem 1.4rem;
+  }
+  .post-cover {
+    margin: -1.75rem -1.4rem 1.4rem;
+  }
+  .post-cover img {
+    border-radius: 0;
+    border-bottom: none;
   }
   .post-title {
     font-size: 1.55rem;
