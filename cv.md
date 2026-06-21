@@ -24,7 +24,7 @@ Principal Software Engineer with over a decade building distributed systems and 
 
 - Tech lead driving the design and implementation of the foundational platform services powering the next generation of Xbox console, owning the architecture and guiding a team of engineers through delivery.
 - Architected the ground-up rewrite and on-prem to cloud migration of the System & Content Update Service, one of the most foundational services powering all of Xbox across PC, console, Cloud Gaming, and internal systems (including Xbox authentication), re-platforming from on-prem hosts to distributed Kubernetes pods backed by a distributed datastore.
-- Designed a novel in-memory caching layer that preserves strong consistency at \~100K RPS with headroom beyond 1M RPS, a guarantee rarely held at this scale; auth-sensitive APIs respond in under 5 ms and client calls average under 50 ms.
+- Designed a novel in-memory caching layer that preserves strong consistency at \~80K RPS with headroom beyond 1M RPS, a guarantee rarely held at this scale; auth-sensitive APIs respond in under 5 ms and client calls average under 50 ms.
 - Delivered the migration with zero downtime and no required client changes, coordinating execution across many partner teams.
 
 #### Xbox Cloud Gaming (xCloud) · Intermediate Software Engineer to Senior · 2020 - 2023

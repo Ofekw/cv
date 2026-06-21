@@ -183,9 +183,9 @@ One that vividly recall is around the two worlds were returning JSON with differ
 
 ---
 
-## When you're 100x bigger than everything else, you break the platform
+## When you're the biggest workload on the platform, you break it
 
-There's a tax to being the largest workload in the building. Our internal platform's next-busiest service ran at around 1,000 RPS. This one runs at around 100,000, and bursts well past it. At that scale I became the person who found the bottlenecks nobody else had hit yet.
+There's a tax to being the largest workload in the building. Our internal platform's next-busiest service ran at around 1,000 RPS. This one runs at around 80,000, and bursts well past it. At that scale I became the person who found the bottlenecks nobody else had hit yet.
 
 Load testing turned into a tour of foundational infrastructure limits: Application Gateway scaling ceilings, SNI (TLS) exhaustion from the sheer volume of connections our clusters were opening, horizontal-scaling assumptions that quietly fell over. One by one, things that "just worked" for everyone else started breaking, and I had to push the platform itself past where it had ever been driven.
 
