@@ -103,9 +103,13 @@ const emailScript = `<script>
 
 function nav(base, active) {
   const cur = (k) => (active === k ? ' aria-current="page"' : '');
+  const brand =
+    active === 'cv'
+      ? ''
+      : `<a class="site-nav-brand" href="${base}index.html">Ofek Wittenberg</a>`;
   return `<nav class="site-nav" aria-label="Primary">
       <div class="site-nav-inner">
-        <a class="site-nav-brand" href="${base}index.html">Ofek Wittenberg</a>
+        ${brand}
         <div class="site-nav-links">
           <a href="${base}index.html"${cur('cv')}>CV</a>
           <a href="${base}thoughts/index.html"${cur('thoughts')}>Thoughts</a>
