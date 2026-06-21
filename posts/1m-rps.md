@@ -183,9 +183,9 @@ One that vividly recall is around the two worlds were returning JSON with differ
 
 ---
 
-## When you're 100x bigger than everything else, you break the platform
+## When you're the biggest workload on the platform, you break it
 
-There's a tax to being the largest workload in the building. Our internal platform's next-busiest service ran at around 1,000 RPS. This one runs at around 100,000, and bursts well past it. At that scale I became the person who found the bottlenecks nobody else had hit yet.
+There's a tax to being the largest workload in the building. Our internal platform's next-busiest service ran at around 1,000 RPS. This one runs at around 80,000, and bursts well past it. At that scale I became the person who found the bottlenecks nobody else had hit yet.
 
 Load testing turned into a tour of foundational infrastructure limits: Application Gateway scaling ceilings, SNI (TLS) exhaustion from the sheer volume of connections our clusters were opening, horizontal-scaling assumptions that quietly fell over. One by one, things that "just worked" for everyone else started breaking, and I had to push the platform itself past where it had ever been driven.
 
@@ -195,7 +195,7 @@ We had a slow, creeping memory leak: process RSS climbing for hours while the ma
 
 The culprit: deep in query evaluation, the SDK called `Expression.Compile()`, which JIT-emits a brand-new `DynamicMethod` every single time. For a high-throughput service that builds distinct expression trees per request, that's unbounded JIT and IL growth; native code memory that never comes back, until long-lived pods walk into their memory limit and die.
 
-Fixing that bug in the SDK, did more than plug the leak. Native memory growth vanished and the pod restarts stopped; the same query path also got dramatically cheaper, from roughly 101 µs to 4 µs per call, about 100x faster for all CosmosDB customers.
+Fixing that bug in the SDK, did more than plug the leak. Native memory growth vanished and the pod restarts stopped; the same query path also got dramatically cheaper, from roughly 101 µs to 4 µs per call, about 25x faster for all CosmosDB customers.
 
 I worked the fix directly with the Cosmos DB team. It's public: [Azure/azure-cosmos-dotnet-v3 #5487](https://github.com/Azure/azure-cosmos-dotnet-v3/issues/5487).
 
@@ -211,7 +211,7 @@ flowchart LR
     direction TB
     A1["LINQ expression per request"] --> A2["Interpret: no IL emitted"]
     A2 --> A3["Flat native memory"]
-    A3 --> A4["~4 µs / call · ~100x faster"]
+    A3 --> A4["~4 µs / call · ~25x faster"]
   end
   BEFORE2 ==>|"bug fix"| AFTER2
 ```
