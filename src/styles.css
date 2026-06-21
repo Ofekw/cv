@@ -108,24 +108,51 @@ body {
   padding-bottom: 0.3rem;
   border-bottom: 1px solid var(--rule);
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.06em;
 }
 
 .cv-body h3 {
   margin: 1rem 0 0.1rem;
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.005em;
 }
 
 .cv-body h4 {
   margin: 0.7rem 0 0.1rem;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 650;
   color: var(--ink);
+}
+
+/* Entry headings carry the title on the left and the date on the right. */
+.cv-body h3.entry,
+.cv-body h4.entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.cv-body .entry-title {
+  min-width: 0;
+}
+
+.cv-body .entry-date {
+  flex: none;
+  font-weight: 500;
+  color: var(--faint);
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cv-body h4.entry .entry-date {
+  font-size: 0.8rem;
 }
 
 .cv-body p {
@@ -161,12 +188,13 @@ body {
 }
 
 .cv-body a {
-  color: var(--accent);
+  color: inherit;
   text-decoration: none;
-  border-bottom: 1px solid rgba(47, 93, 138, 0.3);
+  border-bottom: 1px solid rgba(47, 93, 138, 0.45);
 }
 
 .cv-body a:hover {
+  color: var(--accent);
   border-bottom-color: var(--accent);
 }
 
@@ -238,15 +266,22 @@ body {
   .cv-body h2 {
     margin: 0.34rem 0 0.2rem;
     padding-bottom: 0.16rem;
-    font-size: 7.8pt;
+    font-size: 8.8pt;
+    letter-spacing: 0.05em;
   }
   .cv-body h3 {
     margin: 0.32rem 0 0;
-    font-size: 9.6pt;
+    font-size: 9.3pt;
   }
   .cv-body h4 {
     margin: 0.24rem 0 0;
-    font-size: 8.9pt;
+    font-size: 8.8pt;
+  }
+  .cv-body h3.entry .entry-date {
+    font-size: 7.8pt;
+  }
+  .cv-body h4.entry .entry-date {
+    font-size: 7.6pt;
   }
   .cv-body p,
   .cv-body li {
@@ -270,6 +305,10 @@ body {
   a {
     color: var(--accent) !important;
     border-bottom: none !important;
+  }
+  .cv-body a {
+    color: inherit !important;
+    border-bottom: 1px solid rgba(47, 93, 138, 0.5) !important;
   }
   h2,
   h3,
@@ -320,6 +359,7 @@ body {
   display: flex;
   gap: 1.2rem;
   font-size: 0.9rem;
+  margin-left: auto;
 }
 
 .site-nav-links a {
@@ -598,23 +638,6 @@ body {
 }
 
 /* ===== Thoughts list ===== */
-.thoughts-header {
-  margin-bottom: 1.4rem;
-}
-
-.thoughts-title {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.thoughts-intro {
-  margin: 0.5rem 0 0;
-  color: var(--muted);
-  font-size: 0.98rem;
-}
-
 .post-list {
   list-style: none;
   margin: 0;

@@ -44,7 +44,7 @@ function handleFromUrl(label, url) {
   try {
     const u = new URL(url);
     const p = u.pathname.replace(/^\/+|\/+$/g, '');
-    if (label === 'GitHub') return p.split('/').pop() || u.hostname;
+    if (label === 'GitHub') return '@' + (p.split('/').pop() || u.hostname);
     return p || u.hostname;
   } catch (_) {
     return url;
@@ -103,9 +103,13 @@ const emailScript = `<script>
 
 function nav(base, active) {
   const cur = (k) => (active === k ? ' aria-current="page"' : '');
+  const brand =
+    active === 'cv'
+      ? ''
+      : `<a class="site-nav-brand" href="${base}index.html">Ofek Wittenberg</a>`;
   return `<nav class="site-nav" aria-label="Primary">
       <div class="site-nav-inner">
-        <a class="site-nav-brand" href="${base}index.html">Ofek Wittenberg</a>
+        ${brand}
         <div class="site-nav-links">
           <a href="${base}index.html"${cur('cv')}>CV</a>
           <a href="${base}thoughts/index.html"${cur('thoughts')}>Thoughts</a>
@@ -176,6 +180,18 @@ const mermaidScript = `<script type="module">
   await mermaid.run({ querySelector: 'pre.mermaid' });
 </script>`;
 
+function rightAlignDates(html) {
+  const sep = ' \u00b7 ';
+  return html.replace(/<(h3|h4)>([\s\S]*?)<\/\1>/g, (m, tag, inner) => {
+    const idx = inner.lastIndexOf(sep);
+    if (idx === -1) return m;
+    const last = inner.slice(idx + sep.length).trim();
+    if (!/(?:19|20)\d{2}|present/i.test(last)) return m;
+    const left = inner.slice(0, idx);
+    return `<${tag} class="entry"><span class="entry-title">${left}</span><span class="entry-date">${last}</span></${tag}>`;
+  });
+}
+
 function buildCV(styles) {
   const raw = fs.readFileSync(path.join(root, 'cv.md'), 'utf8');
   const { data, content } = matter(raw);
@@ -183,6 +199,8 @@ function buildCV(styles) {
   let bodyHtml = md.render(content);
   // Standalone emphasised lines (e.g. "*2017 - Present*") become muted meta lines.
   bodyHtml = bodyHtml.replace(/<p><em>([\s\S]*?)<\/em><\/p>/g, '<p class="meta">$1</p>');
+  // Pull a trailing " · <date>" out of entry headings and right-align it.
+  bodyHtml = rightAlignDates(bodyHtml);
 
   const template = fs.readFileSync(path.join(srcDir, 'template.html'), 'utf8');
 
@@ -275,7 +293,6 @@ function buildThoughts(styles, siteUrl) {
     .replaceAll('{{DESCRIPTION}}', 'Writing on distributed systems, scale, and building backend platforms.')
     .replaceAll('{{NAV}}', nav('../', 'thoughts'))
     .replaceAll('{{STYLES}}', styles)
-    .replaceAll('{{INTRO}}', 'Notes on distributed systems, scale, and the occasional war story.')
     .replaceAll(
       '{{LIST}}',
       items || '        <li class="post-list-item"><p class="post-list-summary">Nothing here yet.</p></li>'
