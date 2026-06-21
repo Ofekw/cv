@@ -20,7 +20,7 @@ Over a decade building distributed systems and cloud platforms across gaming, pr
 
 #### Xbox Platform Services · Senior to Principal Software Engineer · 2023 – Present
 
-- Tech lead for the next-generation Xbox console platform. Architected the ground-up rewrite and cloud migration of the System & Content Update Service, a tier-0 system serving every Xbox client, onto up to 400 Kubernetes pods per cluster across 5 clusters in 3 regions.
+- Tech lead for the next-generation Xbox console platform. Architected the ground-up rewrite and cloud migration of the [System & Content Update Service](https://ofek.io/thoughts/1m-rps/), a tier-0 system serving every Xbox client, onto up to 400 Kubernetes pods per cluster across 5 clusters in 3 regions.
 - Designed a novel in-memory cache that holds strong consistency past a million requests per second, a guarantee rarely attempted at this scale. The auth hot path answers sub-millisecond (0.145 ms at p50); client calls fell from 250 ms to 20 ms, at a 95% cache hit rate.
 - Delivered the cutover with zero downtime and no client changes across tens of millions of consoles and PCs, shadowing live traffic and comparing responses to de-risk every step.
 - Diagnosed and fixed a memory leak in the Azure Cosmos DB .NET SDK, making a core query path about 25x faster for every Cosmos customer.
