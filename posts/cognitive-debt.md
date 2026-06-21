@@ -1,7 +1,7 @@
 ---
 title: "Cognitive Debt"
 date: 2026-06-20
-draft: true
+draft: false
 summary: "On the quiet cost of letting AI do the thinking for you, and how to stay sharp while still shipping fast."
 tags:
   - ai

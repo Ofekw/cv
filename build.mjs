@@ -249,7 +249,6 @@ function buildThoughts(styles, siteUrl) {
     .replaceAll('{{DESCRIPTION}}', 'Writing on distributed systems, scale, and building backend platforms.')
     .replaceAll('{{NAV}}', nav('../', 'thoughts'))
     .replaceAll('{{STYLES}}', styles)
-    .replaceAll('{{INTRO}}', 'Notes on distributed systems, scale, and the occasional war story.')
     .replaceAll(
       '{{LIST}}',
       items || '        <li class="post-list-item"><p class="post-list-summary">Nothing here yet.</p></li>'
